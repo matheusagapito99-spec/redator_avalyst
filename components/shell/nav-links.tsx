@@ -24,7 +24,7 @@ const items: Item[] = [
   { label: "Conhecimento", href: "/app/conhecimento", icon: BookOpen, enabled: true },
   { label: "SERP", href: "/app/serp", icon: Search, enabled: false },
   { label: "Integrações", href: "/app/integracoes", icon: Plug, enabled: true },
-  { label: "Relatórios", href: "/app/relatorios", icon: BarChart3, enabled: false },
+  { label: "Relatórios", href: "/app/relatorios", icon: BarChart3, enabled: true },
 ];
 
 export function NavLinks() {
