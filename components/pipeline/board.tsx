@@ -22,23 +22,34 @@ export function Board({ initial }: { initial: ArticleCard[] }) {
   const [cards, setCards] = useState<ArticleCard[]>(initial);
   const [dragId, setDragId] = useState<string | null>(null);
   const [over, setOver] = useState<ArticleStatus | null>(null);
+  const [blocked, setBlocked] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   function move(id: string, status: ArticleStatus) {
-    setCards((cs) => {
-      const card = cs.find((c) => c.id === id);
-      if (!card || card.status === status) return cs;
-      return cs.map((c) => (c.id === id ? { ...c, status } : c));
-    });
+    const prev = cards.find((c) => c.id === id)?.status;
+    if (!prev || prev === status) return;
+    setBlocked(null);
+    setCards((cs) => cs.map((c) => (c.id === id ? { ...c, status } : c)));
     startTransition(async () => {
       const fd = new FormData();
       fd.set("articleId", id);
       fd.set("status", status);
-      await updateArticleStatusAction(fd);
+      const res = await updateArticleStatusAction(fd);
+      if (res?.error) {
+        // Reverte o card e avisa.
+        setCards((cs) => cs.map((c) => (c.id === id ? { ...c, status: prev } : c)));
+        setBlocked(res.error);
+      }
     });
   }
 
   return (
+    <div>
+    {blocked && (
+      <div className="mb-3 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-[13px] text-warning">
+        {blocked}
+      </div>
+    )}
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
       {ARTICLE_STATUSES.map((status) => {
         const items = cards.filter((c) => c.status === status);
@@ -120,6 +131,7 @@ export function Board({ initial }: { initial: ArticleCard[] }) {
           </div>
         );
       })}
+    </div>
     </div>
   );
 }

@@ -36,13 +36,21 @@ export async function createArticleFromBriefAction(formData: FormData) {
   redirect("/app/pipeline");
 }
 
-/** Move um artigo entre colunas do pipeline. */
-export async function updateArticleStatusAction(formData: FormData) {
+/** Move um artigo entre colunas do pipeline. Gate: "Aprovado" exige auditoria aprovada. */
+export async function updateArticleStatusAction(formData: FormData): Promise<{ error?: string } | void> {
   const { ws } = await requireActiveWorkspace();
   ensureRole(ws.role, "contributor");
   const articleId = String(formData.get("articleId") ?? "");
   const status = String(formData.get("status") ?? "") as ArticleStatus;
   if (!ARTICLE_STATUSES.includes(status)) return;
+
+  if (status === "approved") {
+    const { getLatestAudit } = await import("@/lib/data/audit");
+    const audit = await getLatestAudit(ws.id, articleId);
+    if (!audit?.passed) {
+      return { error: "Auditoria não aprovada — não é possível mover para Aprovado." };
+    }
+  }
 
   await db
     .update(articles)

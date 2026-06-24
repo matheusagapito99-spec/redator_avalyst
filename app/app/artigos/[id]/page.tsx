@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Sparkles, FileText } from "lucide-react";
 import { Topbar } from "@/components/shell/topbar";
 import { GenerateButton } from "@/components/ai/generate-button";
+import { AuditPanel } from "@/components/audit/audit-panel";
 import { requireActiveWorkspace } from "@/lib/auth/guard";
 import { getArticleDetail } from "@/lib/data/article-detail";
 import { getAiSettingsPublic } from "@/lib/data/ai-settings";
+import { getLatestAudit } from "@/lib/data/audit";
 import { STATUS_LABEL, type ArticleStatus } from "@/lib/data/article-constants";
 
 const ORIGIN_CLS: Record<string, string> = {
@@ -23,6 +25,7 @@ export default async function ArticleViewPage({ params }: { params: Promise<{ id
 
   const { article, content, sources, run } = data;
   const aiConfigured = await getAiSettingsPublic(ws.id);
+  const audit = await getLatestAudit(ws.id, id);
   const blocks = content?.blocks ?? [];
 
   return (
@@ -80,8 +83,11 @@ export default async function ArticleViewPage({ params }: { params: Promise<{ id
             )}
           </div>
 
-          {/* Painel lateral: fontes + SEO + IA */}
+          {/* Painel lateral: auditoria + fontes + SEO + IA */}
           <aside className="space-y-4">
+            {blocks.length > 0 && (
+              <AuditPanel articleId={article.id} audit={audit} status={article.status} />
+            )}
             {content && (
               <section className="rounded-lg border border-border bg-surface p-4">
                 <h2 className="mb-2 text-[13px] font-medium">SEO</h2>
