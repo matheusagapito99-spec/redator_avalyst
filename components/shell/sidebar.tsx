@@ -6,8 +6,8 @@ import type { WorkspaceSummary } from "@/lib/data/workspaces";
 import { NavLinks } from "@/components/shell/nav-links";
 
 const footerNav = [
-  { label: "Pessoas", icon: Users },
-  { label: "Configurações", icon: Settings },
+  { label: "Pessoas", icon: Users, href: "/app" },
+  { label: "Configurações", icon: Settings, href: "/app/config/ia" },
 ];
 
 export function Sidebar({
@@ -75,7 +75,7 @@ export function Sidebar({
         {footerNav.map((item) => (
           <Link
             key={item.label}
-            href="/app"
+            href={item.href}
             className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-text-secondary transition-colors hover:bg-subtle hover:text-text-primary"
           >
             <item.icon className="h-[18px] w-[18px]" />

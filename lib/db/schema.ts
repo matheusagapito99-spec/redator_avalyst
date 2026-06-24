@@ -404,6 +404,23 @@ export const auditLogs = pgTable(
   (t) => [index("auditlog_ws_idx").on(t.workspaceId, t.createdAt)],
 );
 
+export const aiSettings = pgTable(
+  "ai_settings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull(),
+    model: text("model").notNull(),
+    keyCipher: text("key_cipher").notNull(),
+    keyHint: text("key_hint"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("ai_settings_ws_idx").on(t.workspaceId)],
+);
+
 export const notifications = pgTable(
   "notification",
   {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { GripVertical } from "lucide-react";
 import {
   ARTICLE_STATUSES,
@@ -78,7 +79,13 @@ export function Board({ initial }: { initial: ArticleCard[] }) {
                 >
                   <div className="flex items-start gap-1.5">
                     <GripVertical className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-muted/50" />
-                    <p className="min-w-0 flex-1 text-[13px] font-medium leading-snug">{c.title}</p>
+                    <Link
+                      href={`/app/artigos/${c.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="min-w-0 flex-1 text-[13px] font-medium leading-snug hover:text-accent"
+                    >
+                      {c.title}
+                    </Link>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2 pl-5">
                     {c.funnelStage && (
