@@ -18,7 +18,7 @@ type Item = { label: string; href: string; icon: LucideIcon; enabled: boolean };
 
 const items: Item[] = [
   { label: "Dashboard", href: "/app", icon: LayoutDashboard, enabled: true },
-  { label: "Pipeline", href: "/app/pipeline", icon: KanbanSquare, enabled: false },
+  { label: "Pipeline", href: "/app/pipeline", icon: KanbanSquare, enabled: true },
   { label: "Pautas", href: "/app/pautas", icon: Lightbulb, enabled: true },
   { label: "Artigos", href: "/app/artigos", icon: FileText, enabled: false },
   { label: "Conhecimento", href: "/app/conhecimento", icon: BookOpen, enabled: true },

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { requireActiveWorkspace } from "@/lib/auth/guard";
 import { getBrief, FUNNEL_LABEL, type BriefFilters } from "@/lib/data/briefs";
 import { runSerpAnalysisAction } from "@/lib/briefs/actions";
+import { createArticleFromBriefAction } from "@/lib/articles/actions";
 
 const INTENT_LABEL: Record<string, string> = {
   informacional: "Informacional",
@@ -44,11 +45,15 @@ export default async function BriefDetailPage({ params }: { params: Promise<{ id
           <ArrowLeft className="h-4 w-4" /> Pautas
         </Link>
 
-        <div className="mb-2 flex items-center gap-3">
+        <div className="mb-2 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold tracking-tight">{brief.title}</h1>
           <span className="rounded-full bg-subtle px-2.5 py-0.5 text-[12px] text-text-secondary">
             {brief.status}
           </span>
+          <form action={createArticleFromBriefAction} className="ml-auto">
+            <input type="hidden" name="briefId" value={brief.id} />
+            <Button size="sm" type="submit">Enviar para produção</Button>
+          </form>
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
