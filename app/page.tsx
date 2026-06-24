@@ -69,9 +69,9 @@ export default function Home() {
             interno · multi-workspace
           </span>
         </div>
-        <Link href="/app">
+        <Link href="/login">
           <Button variant="secondary" size="sm">
-            Abrir console
+            Entrar
           </Button>
         </Link>
       </header>
@@ -93,9 +93,9 @@ export default function Home() {
           publica sozinho.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
-          <Link href="/app">
+          <Link href="/register">
             <Button size="lg">
-              Entrar no console
+              Começar agora
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
