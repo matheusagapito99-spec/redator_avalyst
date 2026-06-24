@@ -1,7 +1,17 @@
 import "server-only";
 import { and, eq, desc } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { articles, articleVersions, articleSources, aiRuns } from "@/lib/db/schema";
+import { articles, articleVersions, articleSources, aiRuns, publications } from "@/lib/db/schema";
+
+export async function getLatestPublication(workspaceId: string, articleId: string) {
+  const rows = await db
+    .select({ status: publications.status, externalUrl: publications.externalUrl })
+    .from(publications)
+    .where(and(eq(publications.articleId, articleId), eq(publications.workspaceId, workspaceId)))
+    .orderBy(desc(publications.createdAt))
+    .limit(1);
+  return rows[0] ?? null;
+}
 
 export type ArticleBlock = { type: string; text: string };
 export type ArticleContent = {

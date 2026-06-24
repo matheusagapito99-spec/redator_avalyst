@@ -23,7 +23,7 @@ const items: Item[] = [
   { label: "Artigos", href: "/app/artigos", icon: FileText, enabled: true },
   { label: "Conhecimento", href: "/app/conhecimento", icon: BookOpen, enabled: true },
   { label: "SERP", href: "/app/serp", icon: Search, enabled: false },
-  { label: "Integrações", href: "/app/integracoes", icon: Plug, enabled: false },
+  { label: "Integrações", href: "/app/integracoes", icon: Plug, enabled: true },
   { label: "Relatórios", href: "/app/relatorios", icon: BarChart3, enabled: false },
 ];
 

@@ -4,10 +4,12 @@ import { ArrowLeft, Sparkles, FileText } from "lucide-react";
 import { Topbar } from "@/components/shell/topbar";
 import { GenerateButton } from "@/components/ai/generate-button";
 import { AuditPanel } from "@/components/audit/audit-panel";
+import { PublishPanel } from "@/components/publishing/publish-panel";
 import { requireActiveWorkspace } from "@/lib/auth/guard";
-import { getArticleDetail } from "@/lib/data/article-detail";
+import { getArticleDetail, getLatestPublication } from "@/lib/data/article-detail";
 import { getAiSettingsPublic } from "@/lib/data/ai-settings";
 import { getLatestAudit } from "@/lib/data/audit";
+import { getWordpressPublic } from "@/lib/data/integrations";
 import { STATUS_LABEL, type ArticleStatus } from "@/lib/data/article-constants";
 
 const ORIGIN_CLS: Record<string, string> = {
@@ -26,6 +28,8 @@ export default async function ArticleViewPage({ params }: { params: Promise<{ id
   const { article, content, sources, run } = data;
   const aiConfigured = await getAiSettingsPublic(ws.id);
   const audit = await getLatestAudit(ws.id, id);
+  const wp = await getWordpressPublic(ws.id);
+  const publication = await getLatestPublication(ws.id, id);
   const blocks = content?.blocks ?? [];
 
   return (
@@ -87,6 +91,14 @@ export default async function ArticleViewPage({ params }: { params: Promise<{ id
           <aside className="space-y-4">
             {blocks.length > 0 && (
               <AuditPanel articleId={article.id} audit={audit} status={article.status} />
+            )}
+            {blocks.length > 0 && (
+              <PublishPanel
+                articleId={article.id}
+                status={article.status}
+                wpConnected={!!wp?.connected}
+                publication={publication}
+              />
             )}
             {content && (
               <section className="rounded-lg border border-border bg-surface p-4">
