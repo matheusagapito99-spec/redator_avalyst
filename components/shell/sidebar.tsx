@@ -1,33 +1,9 @@
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  KanbanSquare,
-  Lightbulb,
-  FileText,
-  BookOpen,
-  Search,
-  Plug,
-  BarChart3,
-  Users,
-  Settings,
-  ChevronsUpDown,
-  Plus,
-  LogOut,
-} from "lucide-react";
+import { Users, Settings, ChevronsUpDown, Plus, LogOut } from "lucide-react";
 import { ROLE_LABEL, type Role } from "@/lib/auth/rbac";
 import { logoutAction, setActiveWorkspaceAction } from "@/lib/auth/actions";
 import type { WorkspaceSummary } from "@/lib/data/workspaces";
-
-const nav = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "Pipeline", icon: KanbanSquare },
-  { label: "Pautas", icon: Lightbulb },
-  { label: "Artigos", icon: FileText },
-  { label: "Conhecimento", icon: BookOpen },
-  { label: "SERP", icon: Search },
-  { label: "Integrações", icon: Plug },
-  { label: "Relatórios", icon: BarChart3 },
-];
+import { NavLinks } from "@/components/shell/nav-links";
 
 const footerNav = [
   { label: "Pessoas", icon: Users },
@@ -92,25 +68,7 @@ export function Sidebar({
       </div>
 
       {/* Nav principal */}
-      <nav className="flex-1 space-y-0.5 px-2">
-        {nav.map((item) => (
-          <Link
-            key={item.label}
-            href="/app"
-            className={`relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors ${
-              item.active
-                ? "bg-subtle font-medium text-text-primary"
-                : "text-text-secondary hover:bg-subtle hover:text-text-primary"
-            }`}
-          >
-            {item.active && (
-              <span className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-accent" />
-            )}
-            <item.icon className="h-[18px] w-[18px]" />
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <NavLinks />
 
       {/* Rodapé */}
       <div className="space-y-0.5 border-t border-border p-2">

@@ -1,0 +1,29 @@
+import "server-only";
+
+/** Extrai texto de PDF, DOCX, MD, TXT ou CSV. */
+export async function extractText(
+  filename: string,
+  mime: string | null,
+  buffer: Buffer,
+): Promise<string> {
+  const ext = filename.toLowerCase().split(".").pop() ?? "";
+
+  if (ext === "pdf" || mime === "application/pdf") {
+    const { PDFParse } = await import("pdf-parse");
+    const parser = new PDFParse({ data: new Uint8Array(buffer), verbosity: 0 });
+    const result = await parser.getText();
+    return result.text ?? "";
+  }
+
+  if (
+    ext === "docx" ||
+    mime?.includes("officedocument.wordprocessingml") === true
+  ) {
+    const mammoth = (await import("mammoth")).default;
+    const result = await mammoth.extractRawText({ buffer });
+    return result.value ?? "";
+  }
+
+  // md, txt, csv e demais texto puro
+  return buffer.toString("utf8");
+}
