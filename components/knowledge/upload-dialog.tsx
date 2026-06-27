@@ -14,8 +14,13 @@ const CATS: Array<[string, string]> = [
   ["dados", "Dados"],
 ];
 
+const MAX_FILE = 4 * 1024 * 1024; // 4 MB por arquivo
+const MAX_TOTAL = 4.4 * 1024 * 1024; // ~4.4 MB no total (teto da Vercel)
+
 export function UploadDialog({ defaultCategory = "produto" }: { defaultCategory?: string }) {
   const [open, setOpen] = useState(false);
+  const [sizeError, setSizeError] = useState<string | null>(null);
+  const [picked, setPicked] = useState(0);
   const router = useRouter();
 
   const [state, formAction, pending] = useActionState<UploadState, FormData>(
@@ -83,16 +88,23 @@ export function UploadDialog({ defaultCategory = "produto" }: { defaultCategory?
                   accept=".pdf,.docx,.md,.txt,.csv"
                   className="hidden"
                   onChange={(e) => {
-                    const label = e.currentTarget.nextElementSibling;
-                    if (label) label.textContent = `${e.currentTarget.files?.length ?? 0} arquivo(s) selecionado(s)`;
+                    const files = Array.from(e.currentTarget.files ?? []);
+                    setPicked(files.length);
+                    const tooBig = files.find((f) => f.size > MAX_FILE);
+                    const total = files.reduce((s, f) => s + f.size, 0);
+                    if (tooBig) setSizeError(`"${tooBig.name}" tem mais de 4 MB. Reduza ou divida o arquivo.`);
+                    else if (total > MAX_TOTAL) setSizeError("Soma dos arquivos acima de ~4,4 MB. Envie menos arquivos por vez.");
+                    else setSizeError(null);
                   }}
                 />
-                <span className="text-[11px] text-accent" />
+                {picked > 0 && !sizeError && (
+                  <span className="text-[11px] text-accent">{picked} arquivo(s) selecionado(s)</span>
+                )}
               </label>
 
-              {state?.error && (
+              {(sizeError || state?.error) && (
                 <p className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[13px] text-danger">
-                  {state.error}
+                  {sizeError ?? state?.error}
                 </p>
               )}
 
@@ -100,7 +112,7 @@ export function UploadDialog({ defaultCategory = "produto" }: { defaultCategory?
                 <Button type="button" variant="secondary" size="md" onClick={() => setOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" size="md" disabled={pending}>
+                <Button type="submit" size="md" disabled={pending || !!sizeError}>
                   {pending ? "Enviando…" : "Enviar e indexar"}
                 </Button>
               </div>
