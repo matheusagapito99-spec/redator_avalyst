@@ -12,7 +12,8 @@ export async function extractText(
     const { PDFParse } = await import("pdf-parse");
     const parser = new PDFParse({ data: new Uint8Array(buffer), verbosity: 0 });
     const result = await parser.getText();
-    return result.text ?? "";
+    // Remove marcadores de página "-- N of M --" do pdf-parse v2.
+    return (result.text ?? "").replace(/\n*-- \d+ of \d+ --\n*/g, "\n\n");
   }
 
   if (

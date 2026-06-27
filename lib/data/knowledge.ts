@@ -64,6 +64,25 @@ export async function getCoverage(workspaceId: string): Promise<Record<Category,
   return coverage;
 }
 
+/** Amostra de chunks da base (para a IA sugerir pautas embasadas). */
+export async function getKnowledgeSample(
+  workspaceId: string,
+  limit = 18,
+): Promise<{ filename: string; category: string; content: string }[]> {
+  const rows = await db
+    .select({
+      filename: knowledgeDocs.filename,
+      category: knowledgeDocs.category,
+      content: knowledgeChunks.content,
+    })
+    .from(knowledgeChunks)
+    .innerJoin(knowledgeDocs, eq(knowledgeChunks.docId, knowledgeDocs.id))
+    .where(and(eq(knowledgeChunks.workspaceId, workspaceId), isNull(knowledgeDocs.deletedAt)))
+    .orderBy(desc(knowledgeChunks.createdAt))
+    .limit(limit);
+  return rows as { filename: string; category: string; content: string }[];
+}
+
 export type SearchHit = {
   docId: string;
   filename: string;

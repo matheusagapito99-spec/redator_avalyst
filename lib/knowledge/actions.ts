@@ -31,21 +31,29 @@ export async function uploadDocumentsAction(
   if (files.length === 0) return { error: "Selecione ao menos um arquivo." };
 
   let ok = 0;
+  const errors: string[] = [];
   for (const file of files) {
     const ext = file.name.toLowerCase().split(".").pop() ?? "";
     if (!ALLOWED.includes(ext)) {
-      return { error: `Formato não suportado: ${file.name}. Use PDF, DOCX, MD, TXT ou CSV.` };
+      errors.push(`${file.name}: formato não suportado (use PDF, DOCX, MD, TXT ou CSV).`);
+      continue;
     }
     if (file.size > MAX_BYTES) {
-      return { error: `Arquivo muito grande: ${file.name} (máx. 4 MB).` };
+      errors.push(`${file.name}: maior que 4 MB.`);
+      continue;
     }
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await ingestDocument({ workspaceId: ws.id, category, filename: file.name, mime: file.type || null, buffer });
-    ok++;
+    try {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      await ingestDocument({ workspaceId: ws.id, category, filename: file.name, mime: file.type || null, buffer });
+      ok++;
+    } catch (e) {
+      errors.push(`${file.name}: ${e instanceof Error ? e.message : "falha ao processar"}.`);
+    }
   }
 
   revalidatePath("/app/conhecimento");
-  return { ok };
+  if (ok === 0) return { error: errors.join(" · ") || "Não foi possível processar os arquivos." };
+  return { ok, error: errors.length ? `Alguns falharam: ${errors.join(" · ")}` : undefined };
 }
 
 export async function deleteDocumentAction(formData: FormData) {

@@ -9,8 +9,10 @@ import { briefs, serpAnalyses } from "@/lib/db/schema";
 import { requireActiveWorkspace, ensureRole } from "@/lib/auth/guard";
 import { computeScore, type BriefFilters } from "@/lib/data/briefs";
 import { fetchSerp } from "@/lib/serp/fetch";
+import { suggestBriefs } from "@/lib/ai/suggest-briefs";
 
 export type BriefState = { error?: string } | null;
+export type SuggestState = { ok?: number; error?: string } | null;
 
 const level = z.enum(["baixo", "medio", "alto"]);
 const briefSchema = z.object({
@@ -59,6 +61,55 @@ export async function createBriefAction(_prev: BriefState, formData: FormData): 
     .returning({ id: briefs.id });
 
   redirect(`/app/pautas/${brief.id}`);
+}
+
+/** Gera pautas com IA embasadas na base e salva como "sugerida" para aprovação. */
+export async function suggestBriefsAction(_prev: SuggestState, _formData: FormData): Promise<SuggestState> {
+  const { user, ws } = await requireActiveWorkspace();
+  try {
+    ensureRole(ws.role, "contributor");
+  } catch {
+    return { error: "Você não tem permissão para gerar pautas." };
+  }
+
+  try {
+    const suggestions = await suggestBriefs(ws.id, 5);
+    if (suggestions.length === 0) return { error: "A IA não retornou pautas. Tente novamente." };
+
+    await db.insert(briefs).values(
+      suggestions.map((s) => ({
+        workspaceId: ws.id,
+        mode: "planejamento" as const,
+        title: s.title,
+        targetKeyword: s.targetKeyword,
+        intent: s.intent,
+        funnelStage: s.funnelStage,
+        persona: s.persona,
+        angle: s.angle || null,
+        filters: s.filters,
+        score: computeScore(s.filters),
+        status: "suggested",
+        createdBy: user.id,
+      })),
+    );
+    revalidatePath("/app/pautas");
+    return { ok: suggestions.length };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Falha ao sugerir pautas." };
+  }
+}
+
+/** Aprova uma pauta sugerida (suggested -> backlog). */
+export async function approveBriefAction(formData: FormData) {
+  const { ws } = await requireActiveWorkspace();
+  ensureRole(ws.role, "contributor");
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await db
+    .update(briefs)
+    .set({ status: "backlog" })
+    .where(and(eq(briefs.id, id), eq(briefs.workspaceId, ws.id)));
+  revalidatePath("/app/pautas");
 }
 
 export async function deleteBriefAction(formData: FormData) {
