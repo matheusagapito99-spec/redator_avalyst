@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Sparkles, FileText } from "lucide-react";
+import { ArrowLeft, Sparkles, FileText, Pencil } from "lucide-react";
 import { Topbar } from "@/components/shell/topbar";
 import { GenerateButton } from "@/components/ai/generate-button";
 import { AuditPanel } from "@/components/audit/audit-panel";
@@ -45,6 +45,11 @@ export default async function ArticleViewPage({ params }: { params: Promise<{ id
           <span className="rounded-full bg-subtle px-2.5 py-0.5 text-[12px] text-text-secondary">
             {STATUS_LABEL[article.status as ArticleStatus]}
           </span>
+          {blocks.length > 0 && (
+            <Link href={`/app/artigos/${article.id}/editar`} className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[13px] text-text-secondary transition-colors hover:bg-subtle hover:text-text-primary">
+              <Pencil className="h-3.5 w-3.5" /> Editar
+            </Link>
+          )}
         </div>
 
         {!aiConfigured && (
