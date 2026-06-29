@@ -47,10 +47,12 @@ export async function callProvider(
         "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
       },
+      // Sem `temperature`: os modelos atuais (Opus 4.8/4.7) rejeitam sampling
+      // params com 400; nos demais é opcional. Thinking adaptativo fica off por
+      // padrão (sem custo extra) — omitir o parâmetro é seguro em toda a família.
       body: JSON.stringify({
         model,
         max_tokens: maxTokens,
-        temperature,
         system,
         messages: [{ role: "user", content: user }],
       }),

@@ -29,7 +29,7 @@ export const PROVIDERS: ProviderMeta[] = [
     models: [
       { id: "claude-sonnet-4-6", label: "Claude Sonnet 4.6 (equilíbrio)" },
       { id: "claude-opus-4-8", label: "Claude Opus 4.8 (máxima qualidade)" },
-      { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5 (econômico)" },
+      { id: "claude-haiku-4-5", label: "Claude Haiku 4.5 (econômico)" },
     ],
     keyPrefix: "sk-ant-…",
     keyUrl: "https://platform.claude.com/settings/keys",
